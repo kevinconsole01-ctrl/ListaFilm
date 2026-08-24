@@ -1,0 +1,85 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper function to check if user is authenticated
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Helper function to check if user is the owner of a list
+    function isListOwner(listData) {
+      return isSignedIn() && listData.ownerId == request.auth.uid;
+    }
+
+    // Helper function to check if user is a member of a list
+    function isListMember(listData) {
+      return isSignedIn() && request.auth.uid in listData.members;
+    }
+
+    // Lists collection
+    match /lists/{listId} {
+      // Allow reading list if:
+      // 1. User is a member of the list, OR
+      // 2. User is authenticated and list is shared (for querying by shareToken to join)
+      allow read: if isListMember(resource.data) ||
+                       (isSignedIn() && resource.data.isShared == true);
+
+      // Allow creating a list - user becomes owner and member
+      allow create: if isSignedIn() &&
+                         request.resource.data.ownerId == request.auth.uid &&
+                         request.resource.data.members.hasOnly([request.auth.uid]);
+
+      // Allow updating list:
+      // - Owner can update anything
+      // - Non-members can add themselves to members array IF list is shared and they have the shareToken
+      //   (this is validated in the app by checking shareToken before calling updateDoc)
+      allow update: if isListOwner(resource.data) ||
+                        (isListMember(resource.data) &&
+                         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['members']) &&
+                         request.resource.data.members.hasAll(resource.data.members));
+
+      // Allow deleting list - only owner
+      allow delete: if isListOwner(resource.data);
+
+      // Items subcollection
+      match /items/{itemId} {
+        // Allow reading items if user is a member of the parent list
+        allow read: if isListMember(get(/databases/$(database)/documents/lists/$(listId)).data);
+
+        // Allow creating items if user is a member of the parent list
+        allow create: if isListMember(get(/databases/$(database)/documents/lists/$(listId)).data) &&
+                           request.resource.data.addedBy == request.auth.uid;
+
+        // Allow updating items if user is a member of the parent list
+        // Users can update: watched status, their own rating, their own notes
+        allow update: if isListMember(get(/databases/$(database)/documents/lists/$(listId)).data) &&
+                           request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+                             'watched', 'watchedAt', 'watchedBy',
+                             'userRatings.' + request.auth.uid,
+                             'userNotes.' + request.auth.uid
+                           ]);
+
+        // Allow deleting items if user is a member of the parent list
+        allow delete: if isListMember(get(/databases/$(database)/documents/lists/$(listId)).data);
+      }
+    }
+
+    // Notifications collection
+    match /notifications/{notificationId} {
+      // Users can read their own notifications
+      allow read: if isSignedIn() && resource.data.recipientId == request.auth.uid;
+
+      // Allow creating notifications (for join notifications, etc.)
+      allow create: if isSignedIn() &&
+                         request.resource.data.recipientId != request.auth.uid; // Can't notify yourself
+
+      // Allow updating (marking as read) own notifications
+      allow update: if isSignedIn() &&
+                         resource.data.recipientId == request.auth.uid &&
+                         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+
+      // Allow deleting own notifications
+      allow delete: if isSignedIn() && resource.data.recipientId == request.auth.uid;
+    }
+  }
+}
