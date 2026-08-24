@@ -34,6 +34,11 @@ service cloud.firestore {
              newMembers.hasAll(oldMembers);
     }
 
+    // Users collection - allow users to read/write their own profile
+    match /users/{userId} {
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
+    }
+
     // Lists collection
     match /lists/{listId} {
       // Allow reading list if:
