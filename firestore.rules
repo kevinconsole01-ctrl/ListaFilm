@@ -16,13 +16,18 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid in listData.members;
     }
 
+    // Helper function to check if list is shared
+    function isListShared(listData) {
+      return listData.isShared == true && listData.shareToken != null;
+    }
+
     // Lists collection
     match /lists/{listId} {
       // Allow reading list if:
       // 1. User is a member of the list, OR
       // 2. User is authenticated and list is shared (for querying by shareToken to join)
       allow read: if isListMember(resource.data) ||
-                       (isSignedIn() && resource.data.isShared == true);
+                       (isSignedIn() && isListShared(resource.data));
 
       // Allow creating a list - user becomes owner and member
       allow create: if isSignedIn() &&
@@ -31,9 +36,16 @@ service cloud.firestore {
 
       // Allow updating list:
       // - Owner can update anything
-      // - Non-members can add themselves to members array IF list is shared and they have the shareToken
-      //   (this is validated in the app by checking shareToken before calling updateDoc)
+      // - Members can add themselves to members array (for joining via shareToken)
+      // - Members can update other fields (like list name) if they're the owner
       allow update: if isListOwner(resource.data) ||
+                        // Allow non-members to add themselves to a shared list's members
+                        (!isListMember(resource.data) &&
+                         isListShared(resource.data) &&
+                         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['members']) &&
+                         request.resource.data.members.hasAll(resource.data.members) &&
+                         request.resource.data.members.hasOnly(resource.data.members.union([request.auth.uid]))) ||
+                        // Allow existing members to update (they can add other members, etc.)
                         (isListMember(resource.data) &&
                          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['members']) &&
                          request.resource.data.members.hasAll(resource.data.members));
