@@ -905,22 +905,27 @@ body {
 .sort-select:focus { border-color: var(--gold-dim); }
 
 /* SEARCH RESULTS DROPDOWN */
+.search-add-bar {
+  position: relative;
+  z-index: 100;
+}
+
 .search-results {
   position: absolute;
-  top: calc(100% + 0.5rem);
-  left: 0; right: 0;
+  top: 100%;
+  left: 0;
+  right: 0;
   background: var(--bg-2);
   border: 1px solid var(--border-glass-hover);
   border-radius: var(--radius);
   box-shadow: var(--shadow-lg);
-  z-index: 200;
+  z-index: 1000;
   overflow: hidden;
   max-height: 400px;
   overflow-y: auto;
+  margin-top: 0.5rem;
   animation: slideUp 0.15s ease;
 }
-
-.search-add-bar { position: relative; }
 
 .search-result-item {
   display: flex; align-items: center; gap: 0.75rem;

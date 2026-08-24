@@ -22,13 +22,13 @@ import {
 // ⚠️  REPLACE WITH YOUR FIREBASE CONFIG
 // See README.md for instructions
 const firebaseConfig = {
-  apiKey: "AIzaSyCBBMPlP83jkwhv9tk2wSzdrysD5_URFLI",
-  authDomain: "cinelist-mio.firebaseapp.com",
-  databaseURL: "https://cinelist-mio-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "cinelist-mio",
-  storageBucket: "cinelist-mio.firebasestorage.app",
-  messagingSenderId: "223664330406",
-  appId: "1:223664330406:web:9cd99532b02f4e2b024667"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
 };
 
 // ============ TMDB CONFIG ============
