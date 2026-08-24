@@ -863,6 +863,17 @@ async function addItemToList(tmdbItem) {
 }
 
 // ============ TMDB SEARCH ============
+function positionSearchResults() {
+  const resultsDiv = document.getElementById("search-results");
+  const searchBar = document.querySelector(".search-add-bar");
+  if (!resultsDiv || !searchBar) return;
+
+  const rect = searchBar.getBoundingClientRect();
+  resultsDiv.style.top = `${rect.bottom + 8}px`;
+  resultsDiv.style.left = `${rect.left}px`;
+  resultsDiv.style.width = `${rect.width}px`;
+}
+
 async function searchTMDB(query) {
   if (!query.trim()) {
     hideSearchResults();
@@ -870,6 +881,7 @@ async function searchTMDB(query) {
   }
 
   const resultsDiv = document.getElementById("search-results");
+  positionSearchResults();
   resultsDiv.classList.remove("hidden");
   resultsDiv.innerHTML = `<div class="search-loading">🎬 Cerco "${escapeHtml(query)}"...</div>`;
 
@@ -1313,6 +1325,17 @@ function setupEventListeners() {
     if (!e.target.closest(".search-add-bar") && !e.target.closest("#search-results")) {
       hideSearchResults();
     }
+  });
+
+  // Reposition search results on scroll/resize
+  const contentArea = document.querySelector(".content-area");
+  contentArea.addEventListener("scroll", () => {
+    const resultsDiv = document.getElementById("search-results");
+    if (!resultsDiv.classList.contains("hidden")) positionSearchResults();
+  });
+  window.addEventListener("resize", () => {
+    const resultsDiv = document.getElementById("search-results");
+    if (!resultsDiv.classList.contains("hidden")) positionSearchResults();
   });
 
   // Filter tabs

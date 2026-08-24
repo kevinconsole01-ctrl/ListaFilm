@@ -911,10 +911,7 @@ body {
 }
 
 .search-results {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
+  position: fixed;
   background: var(--bg-2);
   border: 1px solid var(--border-glass-hover);
   border-radius: var(--radius);
@@ -923,7 +920,6 @@ body {
   overflow: hidden;
   max-height: 400px;
   overflow-y: auto;
-  margin-top: 0.5rem;
   animation: slideUp 0.15s ease;
 }
 
