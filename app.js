@@ -19,12 +19,8 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 // ============ FIREBASE CONFIG ============
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
+// ⚠️  REPLACE WITH YOUR FIREBASE CONFIG
+// See README.md for instructions
 const firebaseConfig = {
   apiKey: "AIzaSyCBBMPlP83jkwhv9tk2wSzdrysD5_URFLI",
   authDomain: "cinelist-mio.firebaseapp.com",
@@ -34,9 +30,6 @@ const firebaseConfig = {
   messagingSenderId: "223664330406",
   appId: "1:223664330406:web:9cd99532b02f4e2b024667"
 };
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
 
 // ============ TMDB CONFIG ============
 const TMDB_API_KEY = "19a3e7d1a5356e8daa2323dabc5e1a2d";
