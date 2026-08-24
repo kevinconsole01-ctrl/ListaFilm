@@ -73,8 +73,9 @@ service cloud.firestore {
 
       // Items subcollection
       match /items/{itemId} {
-        // Allow reading items if user is a member of the parent list
-        allow read: if isListMember(get(/databases/$(database)/documents/lists/$(listId)).data);
+        // Allow reading items if user is a member of the parent list OR list is shared
+        allow read: if isListMember(get(/databases/$(database)/documents/lists/$(listId)).data) ||
+                         isListShared(get(/databases/$(database)/documents/lists/$(listId)).data);
 
         // Allow creating items if user is a member of the parent list
         allow create: if isListMember(get(/databases/$(database)/documents/lists/$(listId)).data) &&
