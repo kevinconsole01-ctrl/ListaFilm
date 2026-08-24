@@ -44,8 +44,11 @@ service cloud.firestore {
       // Allow reading list if:
       // 1. User is a member of the list, OR
       // 2. User is authenticated and list is shared (for querying by shareToken to join)
+      // 3. User is querying by shareToken (explicit allow for the join query)
       allow read: if isListMember(resource.data) ||
-                       (isSignedIn() && isListShared(resource.data));
+                       (isSignedIn() && isListShared(resource.data)) ||
+                       // Explicitly allow querying by shareToken for joining
+                       (isSignedIn() && request.query.limit <= 1 && resource.data.shareToken != null);
 
       // Allow creating a list - user becomes owner and member
       allow create: if isSignedIn() &&
